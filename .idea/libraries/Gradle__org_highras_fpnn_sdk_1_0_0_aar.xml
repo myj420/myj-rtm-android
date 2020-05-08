@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: org.highras:fpnn-sdk:1.0.0@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/404711988eba254cdead89c3d6e10f13/fpnn-sdk-1.0.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/404711988eba254cdead89c3d6e10f13/fpnn-sdk-1.0.0/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.highras/fpnn-sdk/1.0.0/a11932bb98432f43c7b7d3a9d774127b30f0026e/fpnn-sdk-1.0.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.highras/fpnn-sdk/1.0.0/5f3c8082258b08ddf08f9e682746a031387f6355/fpnn-sdk-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
