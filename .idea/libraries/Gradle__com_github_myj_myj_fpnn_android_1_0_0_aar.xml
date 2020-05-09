@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.myj:myj-fpnn-android:1.0.0@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/96ae3c479279468b73c70f41d691fda2/myj-fpnn-android-1.0.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/96ae3c479279468b73c70f41d691fda2/myj-fpnn-android-1.0.0/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.myj/myj-fpnn-android/1.0.0/3ee08fab3734e76a99b6772986fe224256ac7e5b/myj-fpnn-android-1.0.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.myj/myj-fpnn-android/1.0.0/43495a68c49196ad39a6337d84fdd0f1c4faf38/myj-fpnn-android-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
