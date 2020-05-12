@@ -6,8 +6,11 @@ import com.fpnn.sdk.FunctionalAnswerCallback;
 import com.fpnn.sdk.TCPClient;
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
-import com.rtmsdk.UserInterface.ErroeCodeCallback;
+import com.rtmsdk.UserInterface.ErrorCodeCallback;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +25,7 @@ class RTMCore {
         Connected
     }
 
-    class HostAddress {
+    static class HostAddress {
         public String ipv6;
         public int port;
 
@@ -81,6 +84,25 @@ class RTMCore {
     public void enableEncryptorByDerData(String curve, byte[] peerPublicKey) {
         this.curve = curve;
         encrptyData = peerPublicKey;
+    }
+
+    public void enableEncryptorByDerFile(String curve, String file) {
+        this.curve = curve;
+        try {
+            FileInputStream fis = new FileInputStream(new File(file));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            int len;
+            byte[] buffer = new byte[1024];
+            while ((len = fis.read(buffer)) != -1) {
+                baos.write(buffer, 0, len);
+            }
+            encrptyData = baos.toByteArray();
+            fis.close();
+            baos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //-------------[ Fack Fields ]--------------------------//
@@ -166,7 +188,7 @@ class RTMCore {
         return client.sendQuest(quest, callback, timeout);
     }
 
-    protected boolean sendQuest(final ErroeCodeCallback callback, Quest quest, int timeout) {
+    protected boolean sendQuest(final ErrorCodeCallback callback, Quest quest, int timeout) {
         return sendQuest(quest, new FunctionalAnswerCallback() {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
@@ -280,7 +302,7 @@ class RTMCore {
         return true;
     }
 
-    private void ConfigRtmGateClient(TCPClient client, int timeout) {
+    private void ConfigRtmGateClient(TCPClient client) {
         client.connectTimeout = RTMConfig.globalConnectTimeoutSeconds;
         client.setQuestTimeout(RTMConfig.globalQuestTimeoutSeconds);
 
@@ -356,11 +378,11 @@ class RTMCore {
         return ErrorCode.FPNN_EC_OK.value();
     }
 
-    private boolean auth(ErroeCodeCallback callback,String token, Map<String, String> attr) throws InterruptedException {
+    private boolean auth(ErrorCodeCallback callback,String token, Map<String, String> attr) throws InterruptedException {
         return auth(callback, token, attr, false);
     }
 
-    private boolean auth(final ErroeCodeCallback callback, final String token, final Map<String, String> attr, final boolean retry) {
+    private boolean auth(final ErrorCodeCallback callback, final String token, final Map<String, String> attr, final boolean retry) {
         Quest qt = new Quest("auth");
         qt.param("pid", pid);
         qt.param("uid", uid);
@@ -397,12 +419,11 @@ class RTMCore {
                     }
                     callback.call(errorCode);
                 }
-                return;
             }
         }, 0);
     }
 
-    protected boolean login(final ErroeCodeCallback callback, final String token, final String lang, final String addressType, final Map<String, String> attr) {
+    protected boolean login(final ErrorCodeCallback callback, final String token, final String lang, final String addressType, final Map<String, String> attr) {
         synchronized (interLocker) {
             if (status == ClientStatus.Connected || status == ClientStatus.Connecting) {
                 new Thread(new Runnable() {
@@ -427,14 +448,13 @@ class RTMCore {
                         callback.call(ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value());
                     } else {
                         rtmGate = TCPClient.create(endpoint);
-                        ConfigRtmGateClient(rtmGate, RTMConfig.globalQuestTimeoutSeconds);
+                        ConfigRtmGateClient(rtmGate);
                         checkRoutineInit();
                         try {
                             auth(callback, token, attr);
                         }
                         catch (InterruptedException e) {
                             close();
-                            return;
                         }
                     }
                 }
@@ -462,7 +482,7 @@ class RTMCore {
         quest.param("what", "rtmGated");
         quest.param("addrType", addressType);
         quest.param("proto", "tcp");
-        Answer answer = null;
+        Answer answer;
         try {
             answer = dispatch.sendQuest(quest);
             if (answer.getErrorCode() != ErrorCode.FPNN_EC_OK.value()) {
@@ -484,7 +504,7 @@ class RTMCore {
                     return RTMErrorCode.RTM_EC_DISPATCH_FAILED.value();
                 }
                 rtmGateEndpoints = (ArrayList<String>) answer.get("endpoints");
-                if (rtmGateEndpoints.equals("")) {
+                if (rtmGateEndpoints.size() == 0) {
                     closeStatus();
                     return ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value();
                 }
@@ -492,7 +512,7 @@ class RTMCore {
             } else
                 rtmGate = TCPClient.create(endpoint);
 
-            ConfigRtmGateClient(rtmGate, RTMConfig.globalQuestTimeoutSeconds);
+            ConfigRtmGateClient(rtmGate);
             checkRoutineInit();
             return auth(token, attr);
         } catch (InterruptedException e) {

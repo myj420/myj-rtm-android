@@ -4,7 +4,7 @@ import com.fpnn.sdk.ErrorCode;
 import com.fpnn.sdk.FunctionalAnswerCallback;
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
-import com.rtmsdk.UserInterface.ErroeCodeCallback;
+import com.rtmsdk.UserInterface.ErrorCodeCallback;
 import com.rtmsdk.UserInterface.MessageCallback;
 
 class RTMData extends RTMMessage {
@@ -62,18 +62,18 @@ class RTMData extends RTMMessage {
     }
 
     //===========================[ Data Set ]=========================//
-    public boolean dataSet(String key, String value, final ErroeCodeCallback callbackt) {
+    public boolean dataSet(String key, String value, final ErrorCodeCallback callbackt) {
         return dataSet(key, value, callbackt, 0);
     }
 
     /**
      * 设置存储的数据信息（仅能操作自己信息）(key:最长128字节，val：最长65535字节) async
      * @param key      key值
-     * @param callback  ErroeCodeCallback接口回调
+     * @param callback  ErrorCodeCallback接口回调
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean dataSet(String key, String value, final ErroeCodeCallback callback, int timeout) {
+    public boolean dataSet(String key, String value, final ErrorCodeCallback callback, int timeout) {
         Quest quest = new Quest("dataSet");
         quest.param("key", key);
         quest.param("val", value);
@@ -100,18 +100,18 @@ class RTMData extends RTMMessage {
     }
 
     //===========================[ Data Delete ]=========================//
-    public boolean dataDelete(String key, final ErroeCodeCallback callback) {
+    public boolean dataDelete(String key, final ErrorCodeCallback callback) {
         return dataDelete(key, callback, 0);
     }
 
     /**
      * 删除存储的数据信息 async
      * @param key      key值
-     * @param callback  ErroeCodeCallback接口回调
+     * @param callback  ErrorCodeCallback接口回调
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean dataDelete(String key, final ErroeCodeCallback callback, int timeout) {
+    public boolean dataDelete(String key, final ErrorCodeCallback callback, int timeout) {
         Quest quest = new Quest("datadel");
         quest.param("key", key);
         return sendQuest(callback, quest, timeout);

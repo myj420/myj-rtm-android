@@ -5,7 +5,7 @@ import com.fpnn.sdk.FunctionalAnswerCallback;
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
 import com.rtmsdk.UserInterface.DoubleStringCallback;
-import com.rtmsdk.UserInterface.ErroeCodeCallback;
+import com.rtmsdk.UserInterface.ErrorCodeCallback;
 import com.rtmsdk.UserInterface.MembersCallback;
 import com.rtmsdk.UserInterface.MessageCallback;
 
@@ -13,19 +13,19 @@ import java.util.HashSet;
 
 class RTMGroup extends RTMFile {
     //===========================[ Add Group Members ]=========================//
-    public boolean addGroupMembers(final ErroeCodeCallback callback, long groupId, HashSet<Long> uids) {
+    public boolean addGroupMembers(final ErrorCodeCallback callback, long groupId, HashSet<Long> uids) {
         return addGroupMembers(callback, groupId, uids, 0);
     }
 
     /**
      * 添加群组用户 async
-     * @param callback  ErroeCodeCallback回调(NoNull)
+     * @param callback  ErrorCodeCallback回调(NoNull)
      * @param groupId   群组id(NoNull)
      * @param uids      用户id集合(NoNull)
      * @param timeout   超时时间（秒）
      * @return  true(发送成功)  false(发送失败)
      * */
-    public boolean addGroupMembers(final ErroeCodeCallback callback, long groupId, HashSet<Long> uids, int timeout) {
+    public boolean addGroupMembers(final ErrorCodeCallback callback, long groupId, HashSet<Long> uids, int timeout) {
         Quest quest = new Quest("addgroupmembers");
         quest.param("gid", groupId);
         quest.param("uids", uids);
@@ -52,19 +52,19 @@ class RTMGroup extends RTMFile {
     }
 
     //===========================[ delete Group Members ]=========================//
-    public boolean deleteGroupMembers(final ErroeCodeCallback callback, long groupId, HashSet<Long> uids) {
+    public boolean deleteGroupMembers(final ErrorCodeCallback callback, long groupId, HashSet<Long> uids) {
         return deleteGroupMembers(callback, groupId, uids, 0);
     }
 
     /**
      * 删除群组用户   async
-     * @param callback  ErroeCodeCallback回调(NoNull)
+     * @param callback  ErrorCodeCallback回调(NoNull)
      * @param groupId   群组id(NoNull)
      * @param uids      用户id集合(NoNull)
      * @param timeout   超时时间（秒）
      * @return  true(发送成功)  false(发送失败)
      * */
-    public boolean deleteGroupMembers(final ErroeCodeCallback callback, long groupId, HashSet<Long> uids, int timeout) {
+    public boolean deleteGroupMembers(final ErrorCodeCallback callback, long groupId, HashSet<Long> uids, int timeout) {
         Quest quest = new Quest("delgroupmembers");
         quest.param("gid", groupId);
         quest.param("uids", uids);
@@ -110,9 +110,9 @@ class RTMGroup extends RTMFile {
         return sendQuest(quest, new FunctionalAnswerCallback() {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
-                HashSet<Long> uids = new HashSet<Long>();
+                HashSet<Long> uids = new HashSet<>();
                 if (errorCode == ErrorCode.FPNN_EC_OK.value()) {
-                    answer.wantLongHashSet("uids", uids);
+                    RTMUtils.wantLongHashSet(answer,"uids", uids);
                 }
                 callback.call(uids, errorCode);
             }
@@ -137,7 +137,7 @@ class RTMGroup extends RTMFile {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value())
-            answer.wantLongHashSet("uids", uids);
+            RTMUtils.wantLongHashSet(answer,"uids", uids);
         return code;
     }
 
@@ -159,9 +159,9 @@ class RTMGroup extends RTMFile {
         return sendQuest(quest, new FunctionalAnswerCallback() {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
-                HashSet<Long> groupIds = new HashSet<Long>();
+                HashSet<Long> groupIds = new HashSet<>();
                 if (errorCode == ErrorCode.FPNN_EC_OK.value())
-                    answer.wantLongHashSet("gids", groupIds);
+                    RTMUtils.wantLongHashSet(answer,"gids", groupIds);
                 callback.call(groupIds, errorCode);
             }
         }, timeout);
@@ -183,33 +183,33 @@ class RTMGroup extends RTMFile {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value())
-            answer.wantLongHashSet("gids", groupIds);
+            RTMUtils.wantLongHashSet(answer,"gids", groupIds);
         return code;
     }
 
     //===========================[ Set Group Info ]=========================//
-    public boolean setGroupInfo(ErroeCodeCallback callback, long groupId) {
+    public boolean setGroupInfo(ErrorCodeCallback callback, long groupId) {
         return setGroupInfo(callback, groupId, null, null, 0);
     }
 
-    public boolean setGroupInfo(ErroeCodeCallback callback, long groupId, String publicInfo, String privateInfo) {
+    public boolean setGroupInfo(ErrorCodeCallback callback, long groupId, String publicInfo, String privateInfo) {
         return setGroupInfo(callback, groupId, publicInfo, privateInfo, 0);
     }
 
-    public boolean setGroupInfo(ErroeCodeCallback callback, long groupId, String publicInfo) {
+    public boolean setGroupInfo(ErrorCodeCallback callback, long groupId, String publicInfo) {
         return setGroupInfo(callback, groupId, publicInfo, null, 0);
     }
 
     /**
      * 设置群组的公开信息或者私有信息 async
-     * @param callback  ErroeCodeCallback回调(NoNull)
+     * @param callback  ErrorCodeCallback回调(NoNull)
      * @param groupId   群组id(NoNull)
      * @param publicInfo    群组公开信息
      * @param privateInfo   群组 私有信息
      * @param timeout   超时时间（秒）
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean setGroupInfo(ErroeCodeCallback callback, long groupId, String publicInfo, String privateInfo, int timeout) {
+    public boolean setGroupInfo(ErrorCodeCallback callback, long groupId, String publicInfo, String privateInfo, int timeout) {
         Quest quest = new Quest("setgroupinfo");
         quest.param("gid", groupId);
         if (publicInfo != null)

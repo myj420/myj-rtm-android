@@ -4,25 +4,25 @@ import com.fpnn.sdk.ErrorCode;
 import com.fpnn.sdk.FunctionalAnswerCallback;
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
-import com.rtmsdk.UserInterface.ErroeCodeCallback;
+import com.rtmsdk.UserInterface.ErrorCodeCallback;
 import com.rtmsdk.UserInterface.MembersCallback;
 
 import java.util.HashSet;
 
 public class RTMFriend extends RTMGroup {
     //===========================[ Add Friends ]=========================//
-    public boolean addFriends(ErroeCodeCallback callback, HashSet<Long> uids) {
+    public boolean addFriends(ErrorCodeCallback callback, HashSet<Long> uids) {
         return addFriends(callback, uids, 0);
     }
 
     /**
      * 添加好友 async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param uids   用户id集合(NoNull)
      * @param timeout  超时时间(秒)
      * @return true(发送成功)  false(发送失败)
      */
-    public boolean addFriends(ErroeCodeCallback callback, HashSet<Long> uids, int timeout) {
+    public boolean addFriends(ErrorCodeCallback callback, HashSet<Long> uids, int timeout) {
         Quest quest = new Quest("addfriends");
         quest.param("friends", uids);
 
@@ -47,18 +47,18 @@ public class RTMFriend extends RTMGroup {
     }
 
     //===========================[ Delete Friends ]=========================//
-    public boolean deleteFriends(ErroeCodeCallback callback, HashSet<Long> uids) {
+    public boolean deleteFriends(ErrorCodeCallback callback, HashSet<Long> uids) {
         return deleteFriends(callback, uids, 0);
     }
 
     /**
      * 删除好友 async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param uids   用户id集合(NoNull)
      * @param timeout  超时时间(秒)
      * @return true(发送成功)  false(发送失败)
      */
-    public boolean deleteFriends(ErroeCodeCallback callback, HashSet<Long> uids, int timeout) {
+    public boolean deleteFriends(ErrorCodeCallback callback, HashSet<Long> uids, int timeout) {
         Quest quest = new Quest("delfriends");
         quest.param("friends", uids);
 
@@ -99,9 +99,9 @@ public class RTMFriend extends RTMGroup {
         return sendQuest(quest, new FunctionalAnswerCallback() {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
-                HashSet<Long> uids = new HashSet<Long>();
+                HashSet<Long> uids = new HashSet<>();
                 if (errorCode == ErrorCode.FPNN_EC_OK.value())
-                    answer.wantLongHashSet("uids", uids);
+                    RTMUtils.wantLongHashSet(answer,"uids", uids);
                 callback.call(uids, errorCode);
             }
         }, timeout);
@@ -123,7 +123,7 @@ public class RTMFriend extends RTMGroup {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value())
-            answer.wantLongHashSet("uids", friends);
+            RTMUtils.wantLongHashSet(answer,"uids", friends);
         return code;
     }
 }

@@ -43,11 +43,11 @@ public class RTMClient extends RTMChat {
         return super.login(token, lang, attr, addressType);
     }
 
-    public boolean login(UserInterface.ErroeCodeCallback callback, String token) {
+    public boolean login(UserInterface.ErrorCodeCallback callback, String token) {
         return super.login(callback, token, "", "ipv4",null);
     }
 
-    public boolean login(UserInterface.ErroeCodeCallback callback,String token, String lang, Map<String, String> attr, String addressType) {
+    public boolean login(UserInterface.ErrorCodeCallback callback,String token, String lang, Map<String, String> attr, String addressType) {
         return super.login(callback, token, lang, addressType, attr);
     }
 }

@@ -8,7 +8,7 @@ import com.rtmsdk.RTMStruct.HistoryMessage;
 import com.rtmsdk.RTMStruct.HistoryMessageResult;
 import com.rtmsdk.RTMStruct.LongMtime;
 import com.rtmsdk.RTMStruct.RetrievedMessage;
-import com.rtmsdk.UserInterface.ErroeCodeCallback;
+import com.rtmsdk.UserInterface.ErrorCodeCallback;
 import com.rtmsdk.UserInterface.HistoryMessageCallback;
 import com.rtmsdk.UserInterface.LongFunctionCallback;
 import com.rtmsdk.UserInterface.RetrievedMessageCallback;
@@ -42,24 +42,21 @@ class RTMMessage extends RTMMessageCore {
                 continue;
 
             HistoryMessage tmp = new HistoryMessage();
-            tmp.id = Long.valueOf(String.valueOf(value.get(0)));
-            tmp.fromUid = Long.valueOf(String.valueOf(value.get(1)));
-            tmp.mtype = Byte.valueOf(String.valueOf(value.get(2)));
-            tmp.mid = Long.valueOf(String.valueOf(value.get(3)));
+            tmp.id = RTMUtils.wantLong(value.get(0));
+            tmp.fromUid = RTMUtils.wantLong(value.get(1));
+            tmp.mtype = (byte)(value.get(2));
+            tmp.mid = RTMUtils.wantLong(value.get(3));
             Object obj = value.get(5);// 目前c++ 无论二进制还是字符串都打的是string
             if (tmp.mtype == MessageMType_Audio)
             {
-                try {
-                    tmp.binaryMessage = (String.valueOf(value.get(5))).getBytes("utf-8");
-                } catch (UnsupportedEncodingException e) {
-                    errorRecorder.recordError(e.getMessage());
-                }
+                if (obj instanceof byte[])
+                    tmp.binaryMessage = (byte [])obj;
             }
             else
-                tmp.message = String.valueOf(value.get(5));
+                tmp.message = String.valueOf(obj);
 
             tmp.attrs = String.valueOf(value.get(6));
-            tmp.mtime = Long.valueOf(String.valueOf(value.get(7)));
+            tmp.mtime = RTMUtils.wantLong(value.get(7));
             result.messages.add(tmp);
         }
         result.count = result.messages.size();
@@ -632,20 +629,20 @@ class RTMMessage extends RTMMessageCore {
     //-- xid: peer uid, or groupId, or roomId
     //-- type: 1: p2p, 2: group; 3: room
 
-    public boolean deleteMessage(ErroeCodeCallback callback, long xid, long mid, int type) {
+    public boolean deleteMessage(ErrorCodeCallback callback, long xid, long mid, int type) {
         return deleteMessage(callback, xid, mid, type, 0);
     }
 
     /**
      *删除单条信息 async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param xid   roomid/groupid/touid(NoNull)
      * @param mid   消息mid(NoNull)
      * @param type  1-p2p; 2-group; 3-room(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean deleteMessage(ErroeCodeCallback callback, long xid, long mid, int type, int timeout) {
+    public boolean deleteMessage(ErrorCodeCallback callback, long xid, long mid, int type, int timeout) {
         Quest quest = new Quest("delmsg");
         quest.param("mid", mid);
         quest.param("xid", xid);

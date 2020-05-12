@@ -21,17 +21,17 @@ import java.util.Map;
 import java.util.TreeMap;
 
 class RTMAudioHeader {
-    public byte version = 1;
-    public ContainerType containerType = ContainerType.CodecInherent;
-    public CodecType codecType = CodecType.AmrWb;
-
+    private byte version = 1;
+    private ContainerType containerType = ContainerType.CodecInherent;
+    private CodecType codecType = CodecType.AmrWb;
+    private Map<String, Object> infoData = new TreeMap<>();
     private byte[] headerArray;
 
     public enum ContainerType {
         CodecInherent(0);
         private int value;
 
-        private ContainerType(int value) {
+        ContainerType(int value) {
             this.value = value;
         }
     }
@@ -41,12 +41,10 @@ class RTMAudioHeader {
         AmrNb(2);
         private int value;
 
-        private CodecType(int value) {
+        CodecType(int value) {
             this.value = value;
         }
     }
-
-    Map<String, Object> infoData = new TreeMap<String, Object>();
 
     public RTMAudioHeader(byte version, ContainerType containerType, CodecType codecType, String lang, int duration, int sampleRate) {
         this.version = version;
@@ -88,19 +86,19 @@ class RTMAudioHeader {
 class AmrBroad implements Runnable {
     private Thread mDecodeThread;
     private AudioTrack mAudioTrack;
-    int playerBufferSize = 0;
-    static final int SAMPLE_RATE = 16000;
-    short[] pcmdata;
+    private  int playerBufferSize = 0;
+    private static final int SAMPLE_RATE = 16000;
+    private short[] pcmData;
 //    boolean isRunning = false;
 
     public void start(short[] data) {
         if (data== null)
             return;
 
-        if (mAudioTrack != null && mAudioTrack.getPlayState() == mAudioTrack.PLAYSTATE_PLAYING)
+        if (mAudioTrack != null && mAudioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING)
             release();
 
-        pcmdata = data;
+        pcmData = data;
 
         playerBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -132,13 +130,13 @@ class AmrBroad implements Runnable {
         try {
             int idx = 0;
             while (mAudioTrack != null && !Thread.currentThread().isInterrupted()) {
-                short[] tempBuffer = Arrays.copyOfRange(pcmdata, idx, idx + playerBufferSize);
+                short[] tempBuffer = Arrays.copyOfRange(pcmData, idx, idx + playerBufferSize);
                 // 播放
-                if (mAudioTrack.getPlayState() != mAudioTrack.PLAYSTATE_PLAYING)
+                if (mAudioTrack.getPlayState() != AudioTrack.PLAYSTATE_PLAYING)
                     return;
                 mAudioTrack.write(tempBuffer, 0, playerBufferSize);
                 idx += playerBufferSize;
-                if (idx >= pcmdata.length)
+                if (idx >= pcmData.length)
                     break;
             }
             release();
@@ -150,7 +148,7 @@ class AmrBroad implements Runnable {
 
 public class RTMAudio {
     private IAudioAction audioAction = null;
-    String lang = "zh-CN";
+    private String lang = "zh-CN";
     //    private AudioTrack mPlayer;
     private MediaRecorder mRecorder = null;
     private String audioDir = "";
@@ -159,7 +157,7 @@ public class RTMAudio {
     private int maxDurSeconds = 60;
     private int defaultBitRate = 16000;
     private int audioChannel = 1;
-    AmrBroad play = new AmrBroad();
+    private AmrBroad play = new AmrBroad();
 
     public short[] getRawData(byte[] amrSrc) {
         if (amrSrc == null)
@@ -234,8 +232,8 @@ public class RTMAudio {
 //    private static class RTMAudioClassHolder {
 //        private static final RTMAudio instance = new RTMAudio();
 //    }
-    public int getAudioTime() {
-        int length = 0;
+    private int getAudioTime() {
+        int length;
         MediaPlayer tmp = new MediaPlayer();
         try {
             tmp.setDataSource(recordFile.getPath());
@@ -252,6 +250,8 @@ public class RTMAudio {
 
     public byte[] genAudioData() throws IOException {
         byte[] audio = fileToByteArray();
+        if (audio == null)
+            return null;
         final int audioDur = getAudioTime();
 
         RTMAudioHeader tt = new RTMAudioHeader(lang, audioDur, minSampleRate);
@@ -261,12 +261,11 @@ public class RTMAudio {
         os.write(header);        //附加信息内容 msgpack后
         os.write(audio);      //语音内容
 
-        byte[] audioData = os.toByteArray();
-        return audioData;
+        return os.toByteArray();
     }
 
     private byte[] fileToByteArray() {
-        byte[] data = null;
+        byte[] data;
         try {
             FileInputStream fis = new FileInputStream(recordFile);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -301,8 +300,7 @@ public class RTMAudio {
             pos += len;
         }
 
-        byte[] realData = Arrays.copyOfRange(audioDta, pos, audioDta.length);//音频数据
-        return realData;
+        return Arrays.copyOfRange(audioDta, pos, audioDta.length);//音频数据
     }
 
     public void startRecord() {
@@ -345,7 +343,6 @@ public class RTMAudio {
                 audioAction.startRecord();
         } catch (Exception e) {
             e.printStackTrace();
-            return ;
         }
     }
 
@@ -379,7 +376,6 @@ public class RTMAudio {
         }
         catch (Exception e){
             e.printStackTrace();
-            return;
         }
     }
 

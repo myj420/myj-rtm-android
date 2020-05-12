@@ -50,7 +50,7 @@ public enum RTMErrorCode {
     private String msg;
     private int code;
 
-    private RTMErrorCode(int _code, String _msg) {
+    RTMErrorCode(int _code, String _msg) {
         code = _code;
         msg = _msg;
     }

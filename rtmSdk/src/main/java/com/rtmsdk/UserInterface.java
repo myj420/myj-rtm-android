@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class UserInterface {
     //接口状态码的回调
-    public interface ErroeCodeCallback {
+    public interface ErrorCodeCallback {
         void call(int errorCode);
     }
 
@@ -31,11 +31,11 @@ public class UserInterface {
 
     public interface  HistoryMessageCallback{
         void call(int count, long lastId, long beginMsec, long endMsec, List<HistoryMessage> messages, int errorCode);
-    };
+    }
 
     public interface  UnreadCallback{
         void call(List<Long> p2p_uids, List<Long> groupIds, int errorCode);
-    };
+    }
 
     public interface RetrievedMessageCallback{
         void call(RetrievedMessage message, int errorCode);

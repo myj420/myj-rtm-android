@@ -19,18 +19,18 @@ class RTMSystem extends RTMUser {
     }
 
     //===========================[ Kickout ]=========================//
-    public boolean kickout(UserInterface.ErroeCodeCallback callback, String endpoint) {
+    public boolean kickout(UserInterface.ErrorCodeCallback callback, String endpoint) {
         return kickout(callback, endpoint, 0);
     }
 
     /**
      *踢掉一个链接（只对多用户登录有效，不能踢掉自己，可以用来实现同类设备，只容许一个登录） async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param endpoint  另一个用户的地址(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean kickout(final UserInterface.ErroeCodeCallback callback, String endpoint, int timeout) {
+    public boolean kickout(final UserInterface.ErrorCodeCallback callback, String endpoint, int timeout) {
         Quest quest = new Quest("kickout");
         quest.param("ce", endpoint);
 
@@ -61,18 +61,18 @@ class RTMSystem extends RTMUser {
 
 
     //===========================[ Add Attributes ]=========================//
-    public boolean addAttributes(final UserInterface.ErroeCodeCallback callback, Map<String, String> attrs) {
+    public boolean addAttributes(final UserInterface.ErrorCodeCallback callback, Map<String, String> attrs) {
         return addAttributes(callback, attrs, 0);
     }
 
     /**
      *添加key_value形式的变量（例如设置客户端信息，会保存在当前链接中） async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param attrs     客户端自定义属性值(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean addAttributes(final UserInterface.ErroeCodeCallback callback, Map<String, String> attrs, int timeout) {
+    public boolean addAttributes(final UserInterface.ErrorCodeCallback callback, Map<String, String> attrs, int timeout) {
         Quest quest = new Quest("addattrs");
         quest.param("attrs", attrs);
 
@@ -120,7 +120,7 @@ class RTMSystem extends RTMUser {
             public void onAnswer(Answer answer, int errorCode) {
                 List<Map<String, String>> attributes = new ArrayList<>();
                 if (errorCode == ErrorCode.FPNN_EC_OK.value())
-                    answer.wantListHashMap("attrs", attributes);
+                    RTMUtils.wantListHashMap(answer,"attrs", attributes);
 
                 callback.call(attributes, errorCode);
             }
@@ -142,12 +142,12 @@ class RTMSystem extends RTMUser {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value())
-            answer.wantListHashMap("attrs", attributes);
+            RTMUtils.wantListHashMap(answer,"attrs", attributes);
         return code;
     }
 
     //===========================[ Add Debug Log ]=========================//
-    public boolean addDebugLog(final UserInterface.ErroeCodeCallback callback, String message, String attrs, int timeout) {
+    public boolean addDebugLog(final UserInterface.ErrorCodeCallback callback, String message, String attrs, int timeout) {
         Quest quest = new Quest("adddebuglog");
         quest.param("msg", message);
         quest.param("attrs", attrs);
@@ -155,7 +155,7 @@ class RTMSystem extends RTMUser {
         return sendQuest(callback, quest, timeout);
     }
 
-    public boolean addDebugLog(final UserInterface.ErroeCodeCallback callback, String message, String attrs) {
+    public boolean addDebugLog(final UserInterface.ErrorCodeCallback callback, String message, String attrs) {
         return addDebugLog(callback, message, attrs, 0);
     }
 
@@ -174,20 +174,20 @@ class RTMSystem extends RTMUser {
 
     /**
      * 添加设备，应用信息 async
-     * @param  callback  ErroeCodeCallback回调
+     * @param  callback  ErrorCodeCallback回调
      * @param appType     应用类型(NoNull)
      * @param deviceToken   设备token(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean addDevice(final UserInterface.ErroeCodeCallback callback, String appType, String deviceToken, int timeout) {
+    public boolean addDevice(final UserInterface.ErrorCodeCallback callback, String appType, String deviceToken, int timeout) {
         Quest quest = new Quest("adddevice");
         quest.param("apptype", appType);
         quest.param("devicetoken", deviceToken);
 
         return sendQuest(callback, quest, timeout);
     }
-    public boolean addDevice(final UserInterface.ErroeCodeCallback callback, String appType, String deviceToken) {
+    public boolean addDevice(final UserInterface.ErrorCodeCallback callback, String appType, String deviceToken) {
         return addDevice(callback, appType, deviceToken, 0);
     }
 
@@ -211,18 +211,18 @@ class RTMSystem extends RTMUser {
     }
 
     //===========================[ Remove Device ]=========================//
-    public boolean RemoveDevice(final UserInterface.ErroeCodeCallback callback, String deviceToken) {
+    public boolean RemoveDevice(final UserInterface.ErrorCodeCallback callback, String deviceToken) {
         return RemoveDevice(callback, deviceToken, 0);
     }
 
     /**
      * 删除设备，应用信息 async
-     * @param  callback  ErroeCodeCallback回调
+     * @param  callback  ErrorCodeCallback回调
      * @param deviceToken   设备token(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean RemoveDevice(final UserInterface.ErroeCodeCallback callback, String deviceToken, int timeout) {
+    public boolean RemoveDevice(final UserInterface.ErrorCodeCallback callback, String deviceToken, int timeout) {
         Quest quest = new Quest("removedevice");
         quest.param("devicetoken", deviceToken);
 

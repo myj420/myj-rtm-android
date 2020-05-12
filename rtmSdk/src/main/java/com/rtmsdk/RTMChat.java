@@ -683,12 +683,12 @@ class RTMChat extends RTMRoom {
         return sendQuest(quest, new FunctionalAnswerCallback() {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
-                List<Long> p2pList = new ArrayList<Long>();
-                List<Long> groupList = new ArrayList<Long>();
+                List<Long> p2pList = new ArrayList<>();
+                List<Long> groupList = new ArrayList<>();
 
                 if (errorCode == ErrorCode.FPNN_EC_OK.value()) {
-                    answer.wantLongList("p2p", p2pList);
-                    answer.wantLongList("group", groupList);
+                    RTMUtils.wantLongList(answer,"p2p", p2pList);
+                    RTMUtils.wantLongList(answer,"group", groupList);
                 }
                 callback.call(p2pList, groupList, errorCode);
             }
@@ -717,24 +717,24 @@ class RTMChat extends RTMRoom {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value()) {
-            answer.wantLongList("p2p", p2pList);
-            answer.wantLongList("group", groupList);
+            RTMUtils.wantLongList(answer,"p2p", p2pList);
+            RTMUtils.wantLongList(answer,"group", groupList);
         }
         return code;
     }
 
     //===========================[ Clear Unread ]=========================//
-    public boolean clearUnread(ErroeCodeCallback callback) {
+    public boolean clearUnread(ErrorCodeCallback callback) {
         return clearUnread(callback, 0);
     }
 
     /**
      *清除离线提醒 async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean clearUnread(ErroeCodeCallback callback, int timeout) {
+    public boolean clearUnread(ErrorCodeCallback callback, int timeout) {
         Quest quest = new Quest("cleanunread");
         return sendQuest(callback, quest, timeout);
     }
@@ -769,12 +769,12 @@ class RTMChat extends RTMRoom {
         return sendQuest(quest, new FunctionalAnswerCallback() {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
-                List<Long> p2pList = new ArrayList<Long>();
-                List<Long> groupList = new ArrayList<Long>();
+                List<Long> p2pList = new ArrayList<>();
+                List<Long> groupList = new ArrayList<>();
 
                 if (errorCode == ErrorCode.FPNN_EC_OK.value()) {
-                    answer.wantLongList("p2p", p2pList);
-                    answer.wantLongList("group", groupList);
+                    RTMUtils.wantLongList(answer,"p2p", p2pList);
+                    RTMUtils.wantLongList(answer,"group", groupList);
                 }
                 callback.call(p2pList, groupList, errorCode);
             }
@@ -798,8 +798,8 @@ class RTMChat extends RTMRoom {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value()) {
-            answer.wantLongList("p2p", p2pList);
-            answer.wantLongList("group", groupList);
+            RTMUtils.wantLongList(answer,"p2p", p2pList);
+            RTMUtils.wantLongList(answer,"group", groupList);
         }
         return code;
     }
@@ -808,20 +808,20 @@ class RTMChat extends RTMRoom {
     //-- xid: peer uid, or groupId, or roomId
     //-- type: 1: p2p, 2: group; 3: room
 
-    public boolean deleteChat(ErroeCodeCallback callback, long xid, long mid, int type) {
+    public boolean deleteChat(ErrorCodeCallback callback, long xid, long mid, int type) {
         return deleteChat(callback, xid, mid, type, 0);
     }
 
     /**
      *删除单条聊天信息 async
-     * @param callback ErroeCodeCallback回调(NoNull)
+     * @param callback ErrorCodeCallback回调(NoNull)
      * @param xid   roomid/groupid/touid(NoNull)
      * @param mid   消息mid(NoNull)
      * @param type  1-p2p; 2-group; 3-room(NoNull)
      * @param timeout   超时时间(秒)
      * @return  true(发送成功)  false(发送失败)
      */
-    public boolean deleteChat(ErroeCodeCallback callback, long xid, long mid, int type, int timeout) {
+    public boolean deleteChat(ErrorCodeCallback callback, long xid, long mid, int type, int timeout) {
         return deleteMessage(callback, xid, mid, type, timeout);
     }
 
@@ -864,7 +864,7 @@ class RTMChat extends RTMRoom {
     }
 
     public int getChat(RetrievedMessage retrievedMessage, long xid, long mid, int type) {
-        return getChat(retrievedMessage, xid, type, 0);
+        return getChat(retrievedMessage, xid, mid, type, 0);
     }
 
     /*获取单条聊天消息 sync
@@ -880,18 +880,18 @@ class RTMChat extends RTMRoom {
     }
 
     //===========================[ Set translated Languag ]=========================//
-    public boolean setTranslatedLanguage(ErroeCodeCallback callback, String targetLanguage) {
+    public boolean setTranslatedLanguage(ErrorCodeCallback callback, String targetLanguage) {
         return setTranslatedLanguage(callback, targetLanguage, 0);
     }
 
     /**
      *设置目标翻译语言 async
-     * @param callback  ErroeCodeCallback回调(NoNull)
+     * @param callback  ErrorCodeCallback回调(NoNull)
      * @param targetLanguage    目标语言(NoNull)
      * @param timeout   超时时间(秒)
      * @return      true(发送成功)  false(发送失败)
      */
-    public boolean setTranslatedLanguage(ErroeCodeCallback callback, String targetLanguage, int timeout) {
+    public boolean setTranslatedLanguage(ErrorCodeCallback callback, String targetLanguage, int timeout) {
         Quest quest = new Quest("setlang");
         quest.param("lang", targetLanguage);
         return sendQuest(callback, quest, timeout);
@@ -946,7 +946,7 @@ class RTMChat extends RTMRoom {
      * @param type                  翻译类型("mail","chat")
      * @param profanity             敏感语过滤类型
      * @param postProfanity         是否把翻译后的文本过滤
-     * @return
+     * @return              true(发送成功)  false(发送失败)
      */
     public boolean translate(final TranslateCallback callback, String text, String destinationLanguage, String sourceLanguage, int timeout,
                              translateType type, ProfanityType profanity, boolean postProfanity) {
@@ -1103,7 +1103,7 @@ class RTMChat extends RTMRoom {
      * @param text      需要过滤的文本(NoNull)
      * @param resultText    过滤后的文本(NoNull)
      * @param classify  是否进行文本分类检测
-     * @parm  classification  文本分类结果
+     * @param classification  文本分类结果
      * @param timeout   超时时间(秒)
      * @return          errcode错误码(如果为RTMErrorCode.FPNN_EC_OK为成功)
      */
@@ -1117,11 +1117,8 @@ class RTMChat extends RTMRoom {
         if (code == ErrorCode.FPNN_EC_OK.value()) {
             resultText.append(answer.wantString("text"));
             Object obj  = answer.get("classification",null);
-            if (obj != null) {
-                List<String> classList =  (ArrayList<String>) obj;
-                for (String value: classList)
-                    classification.add(value);
-            }
+            if (obj != null)
+                classification.addAll((ArrayList<String>) obj);
         }
         return code;
     }
@@ -1166,7 +1163,7 @@ class RTMChat extends RTMRoom {
      *语音识别 sync
      * @param audio     语音消息(NoNull)
      * @param resultText    识别后的文本(NoNull)
-     * @param resultText    识别后的语言(NoNull)
+     * @param resultLanguage    识别后的语言(NoNull)
      * @param timeout   超时时间(秒)
      * @return          errcode错误码(如果为RTMErrorCode.FPNN_EC_OK为成功)
      */

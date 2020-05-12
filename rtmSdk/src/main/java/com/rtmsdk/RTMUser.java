@@ -5,7 +5,7 @@ import com.fpnn.sdk.FunctionalAnswerCallback;
 import com.fpnn.sdk.proto.Answer;
 import com.fpnn.sdk.proto.Quest;
 import com.rtmsdk.UserInterface.DoubleStringCallback;
-import com.rtmsdk.UserInterface.ErroeCodeCallback;
+import com.rtmsdk.UserInterface.ErrorCodeCallback;
 import com.rtmsdk.UserInterface.MembersCallback;
 import com.rtmsdk.UserInterface.UserAttrsCallback;
 
@@ -36,8 +36,8 @@ public class RTMUser extends RTMData {
             public void onAnswer(Answer answer, int errorCode) {
                 HashSet<Long> onlineUids = null;
                 if (errorCode == ErrorCode.FPNN_EC_OK.value()) {
-                    onlineUids = new HashSet<Long>();
-                    answer.wantLongHashSet("uids", onlineUids);
+                    onlineUids = new HashSet<>();
+                    RTMUtils.wantLongHashSet(answer, "uids", onlineUids);
                 }
                 callback.call(onlineUids, errorCode);
             }
@@ -63,33 +63,33 @@ public class RTMUser extends RTMData {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value())
-            answer.wantLongHashSet("uids", onlineUids);
+            RTMUtils.wantLongHashSet(answer, "uids", onlineUids);
         return code;
     }
 
     //===========================[ Set User Info ]=========================//
-    public boolean setUserInfo(ErroeCodeCallback callback) {
+    public boolean setUserInfo(ErrorCodeCallback callback) {
         return setUserInfo(callback, null, null, 0);
     }
 
-    public boolean setUserInfo(ErroeCodeCallback callback, String publicInfo) {
+    public boolean setUserInfo(ErrorCodeCallback callback, String publicInfo) {
         return setUserInfo(callback, publicInfo, null, 0);
     }
 
-    public boolean setUserInfo(ErroeCodeCallback callback, String publicInfo, String privateInfo) {
+    public boolean setUserInfo(ErrorCodeCallback callback, String publicInfo, String privateInfo) {
         return setUserInfo(callback, publicInfo, privateInfo, 0);
     }
 
     /**
      * 设置用户自己的公开信息或者私有信息(publicInfo,privateInfo 最长 65535) async
      *
-     * @param callback    ErroeCodeCallback回调(NoNull)
+     * @param callback    ErrorCodeCallback回调(NoNull)
      * @param publicInfo  公开信息
      * @param privateInfo 私有信息
      * @param timeout     超时时间（秒）
      * @return true(发送成功)  false(发送失败)
      */
-    public boolean setUserInfo(ErroeCodeCallback callback, String publicInfo, String privateInfo, int timeout) {
+    public boolean setUserInfo(ErrorCodeCallback callback, String publicInfo, String privateInfo, int timeout) {
         Quest quest = new Quest("setuserinfo");
         if (publicInfo != null)
             quest.param("oinfo", publicInfo);
@@ -203,8 +203,8 @@ public class RTMUser extends RTMData {
             public void onAnswer(Answer answer, int errorCode) {
                 Map<String, String> attributes = null;
                 if (errorCode == ErrorCode.FPNN_EC_OK.value()) {
-                    attributes = new HashMap<String, String>();
-                    answer.wantStringMap("info", attributes);
+                    attributes = new HashMap<>();
+                    RTMUtils.wantStringMap(answer, "info", attributes);
                 }
                 callback.call(attributes, errorCode);
             }
@@ -230,8 +230,7 @@ public class RTMUser extends RTMData {
         Answer answer = sendQuest(quest, timeout);
         int code = checkAnswer(answer);
         if (code == ErrorCode.FPNN_EC_OK.value())
-            answer.wantStringMap("info", publicInfos);
-
+            RTMUtils.wantStringMap(answer, "uids", publicInfos);
         return code;
     }
 }

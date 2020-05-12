@@ -12,7 +12,7 @@ class DuplicatedMessageFilter {
         BroadcastMessage,
     }
 
-    private class MessageIdUnit {
+    private static class MessageIdUnit {
         public MessageCategories messageType;
         public long bizId;
         public long uid;
@@ -51,7 +51,7 @@ class DuplicatedMessageFilter {
     private Map<MessageIdUnit, Long> midCache;
 
     public DuplicatedMessageFilter() {
-        midCache = new HashMap<MessageIdUnit, Long>();
+        midCache = new HashMap<>();
     }
 
     public boolean CheckMessage(MessageCategories type, long uid, long mid) {

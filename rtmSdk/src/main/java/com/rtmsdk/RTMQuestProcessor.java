@@ -80,7 +80,7 @@ class RTMQuestProcessor {
         return null;
     }
 
-    private class MessageInfo {
+    private static class MessageInfo {
         public boolean isBinary;
         public byte[] binaryData;
         public String message;
@@ -135,7 +135,7 @@ class RTMQuestProcessor {
         long mtime = quest.wantLong("mtime");
 
         if (mtype == MessageMType_Chat) {
-            StringBuilder orginialMessage = new StringBuilder("");
+            StringBuilder orginialMessage = new StringBuilder();
             TranslatedMessage tm = processChatMessage(quest, orginialMessage);
             questProcessor.pushChat(from, to, mid, tm, attrs, mtime);
             return null;
@@ -183,7 +183,7 @@ class RTMQuestProcessor {
         long mtime = quest.wantLong("mtime");
 
         if (mtype == MessageMType_Chat) {
-            StringBuilder orginialMessage = new StringBuilder("");
+            StringBuilder orginialMessage = new StringBuilder();
             TranslatedMessage tm = processChatMessage(quest, orginialMessage);
             questProcessor.pushGroupChat(from, groupId, mid, tm, attrs, mtime);
             return null;
@@ -232,7 +232,7 @@ class RTMQuestProcessor {
         long mtime = quest.wantLong("mtime");
 
         if (mtype == MessageMType_Chat) {
-            StringBuilder orginialMessage = new StringBuilder("");
+            StringBuilder orginialMessage = new StringBuilder();
             TranslatedMessage tm = processChatMessage(quest, orginialMessage);
             questProcessor.pushRoomChat(from, roomId, mid, tm, attrs, mtime);
             return null;
@@ -280,7 +280,7 @@ class RTMQuestProcessor {
         long mtime = quest.wantLong("mtime");
 
         if (mtype == MessageMType_Chat) {
-            StringBuilder orginialMessage = new StringBuilder("");
+            StringBuilder orginialMessage = new StringBuilder();
             TranslatedMessage tm = processChatMessage(quest, orginialMessage);
             questProcessor.pushBroadcastChat(from, mid, tm, attrs, mtime);
             return null;

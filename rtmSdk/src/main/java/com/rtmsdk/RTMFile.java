@@ -2,6 +2,7 @@ package com.rtmsdk;
 
 import com.fpnn.sdk.ConnectionConnectedCallback;
 import com.fpnn.sdk.ErrorCode;
+import com.fpnn.sdk.ErrorRecorder;
 import com.fpnn.sdk.FunctionalAnswerCallback;
 import com.fpnn.sdk.TCPClient;
 import com.fpnn.sdk.proto.Answer;
@@ -20,7 +21,7 @@ class RTMFile extends RTMSystem {
         Room
     }
 
-    private class SendFileInfo {
+    private static class SendFileInfo {
         public fileTokenType actionType;
 
         public long xid;
@@ -73,7 +74,7 @@ class RTMFile extends RTMSystem {
     }
 
     private int fileToken(StringBuilder token, StringBuilder endpoint, fileTokenType tokenType, long xid) {
-        return fileToken(token, endpoint, tokenType, xid);
+        return fileToken(token, endpoint, tokenType, xid, 0);
     }
 
     private int fileToken(StringBuilder token, StringBuilder endpoint, fileTokenType tokenType, long xid, int timeout) {
@@ -236,7 +237,7 @@ class RTMFile extends RTMSystem {
         client.setConnectedCallback(new ConnectionConnectedCallback() {
             @Override
             public void connectResult(InetSocketAddress peerAddress, boolean connected) {
-                int errorCode = ErrorCode.FPNN_EC_OK.value();
+                int errorCode;
                 if (connected) {
                     activeFileGateClient(info.endpoint, client);
                     errorCode = sendFileWithClient(info, client);
@@ -263,15 +264,18 @@ class RTMFile extends RTMSystem {
         if (errorCode == ErrorCode.FPNN_EC_OK.value()) {
             info.token = token;
             info.endpoint = endpoint;
+            int  err;
 
             TCPClient fileClient = fecthFileGateClient(info.endpoint);
             if (fileClient != null)
-                errorCode = sendFileWithClient(info, fileClient);
+                err = sendFileWithClient(info, fileClient);
             else
-                errorCode = sendFileWithoutClient(info, true);
+                err = sendFileWithoutClient(info, true);
 
-            if (errorCode == ErrorCode.FPNN_EC_OK.value())
+            if (err == ErrorCode.FPNN_EC_OK.value())
                 return;
+            else
+                ErrorRecorder.getInstance().recordError("send file error");
         } else
             info.callback.call(0, errorCode);
     }
@@ -303,7 +307,7 @@ class RTMFile extends RTMSystem {
                     getFileTokenCallback(inFile, token, endpoint, errorCode);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    return;
+                    e.printStackTrace();
                 }
             }
         }, tokenType, info.xid, timeout);
@@ -321,8 +325,8 @@ class RTMFile extends RTMSystem {
         //----------[ 2. Get File Token ]---------------//
         long lastActionTimestamp = RTMUtils.getCurrentMilliseconds();
 
-        StringBuilder token = new StringBuilder("");
-        StringBuilder endpoint = new StringBuilder("");
+        StringBuilder token = new StringBuilder();
+        StringBuilder endpoint = new StringBuilder();
         int errorCode = fileToken(token, endpoint, tokenType, targetId, timeout);
         if (errorCode != ErrorCode.FPNN_EC_OK.value())
             return errorCode;
