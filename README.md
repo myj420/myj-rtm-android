@@ -1,20 +1,25 @@
 ## android-rtm-sdk
     最低支持android版本为4.4 支持fpnn ecc加密
+
 ### 第三方依赖
-fpnn-sdk-android<br/>
+## fpnn-android-sdk
+~~~
+https://github.com/highras/fpnn-sdk-android
+~~~
 
 ### for Maven
 ~~~
 <dependency>
-    <groupId>org.livedata</groupId>
-    <artifactId>rtm</artifactId>
+    <groupId>com.github.highras</groupId>
+    <artifactId>rtm-android</artifactId>
     <version>2.0.0</version>
+    <type>pom</type>
 </dependency>
 ~~~
 
 ### for Gradle
 ~~~
-    implementation 'org.livedata:rtm:2.0.0'
+    implementation 'com.github.highras:rtm-android:2.0.0'
 ~~~
 
 ### 使用
@@ -33,15 +38,15 @@ import com.rtmsdk.RTMAudio;
     //若服务端启用fpnn加密功能 客户端需要传入公钥和曲线算法
     client.enableEncryptorByDerData(String curve, byte[] peerPublicKey);
     
-    //-- sync interfaces
+    //-- sync
     client.login(String token, String lang = "", Map<String, String> attr = "", string addrestype = "ipv4")
-    //-- Async interfaces
+    //-- Async
     client.login(loginCallback callback, String token = "", String lang = "", Map<String, String> attr = "", string addrestype = "ipv4")
     
     login成功后可以正常调用rtm相关接口
 
 ### 链接关闭
-- 用户可以自己定义RTMClient关闭事件，继承IRTMQuestProcessor接口 重写sessionClosed方法，当链接关闭或被服务器kickout时 用户的auth(验证)状态清除，之后调用任何rtm用户相关接口都会返回失败200022(unauthed)
+- 用户可以自己定义RTMClient关闭事件，继承IRTMQuestProcessor接口 重写sessionClosed方法，当链接关闭或被服务器kickout时 用户的auth(验证)状态清除，之后调用任何rtm相关接口都会返回失败200022(unauthed)
 用户需要再次调用login
 
 
