@@ -102,6 +102,24 @@ public class RTMUtils {
             value = Long.valueOf(String.valueOf(obj));
         return value;
     }
+
+    public static int wantInt(Object obj) {
+        int value = -1;
+        if (obj instanceof Integer)
+            value = (Integer) obj;
+        else if (obj instanceof Long)
+            value = ((Long) obj).intValue();
+        else if (obj instanceof BigInteger)
+            value = ((BigInteger) obj).intValue();
+        else if (obj instanceof Short)
+            value = ((Short) obj).intValue();
+        else if (obj instanceof Byte)
+            value = ((Byte) obj).intValue();
+        else
+            value = Integer.valueOf(String.valueOf(obj));
+        return value;
+    }
+
 }
 
 

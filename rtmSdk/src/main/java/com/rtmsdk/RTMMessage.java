@@ -44,9 +44,9 @@ class RTMMessage extends RTMMessageCore {
             HistoryMessage tmp = new HistoryMessage();
             tmp.id = RTMUtils.wantLong(value.get(0));
             tmp.fromUid = RTMUtils.wantLong(value.get(1));
-            tmp.mtype = (byte)(value.get(2));
+            tmp.mtype = (byte)RTMUtils.wantInt(value.get(2));
             tmp.mid = RTMUtils.wantLong(value.get(3));
-            Object obj = value.get(5);// 目前c++ 无论二进制还是字符串都打的是string
+            Object obj = value.get(5);
             if (tmp.mtype == MessageMType_Audio)
             {
                 if (obj instanceof byte[])

@@ -11,6 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 class RTMChat extends RTMRoom {
+    private List<Byte> chatMTypes = new ArrayList<Byte>() {
+        {
+            add(MessageMType_Chat);
+            add(MessageMType_Audio);
+            add(MessageMType_Cmd);
+            for (byte i = MessageMType_FileStart; i<= MessageMType_FileEnd;i++)
+                add(i);
+        }
+    };
     //===========================[ sending Chat ]=========================//
 
     /****************************p2p*****************/
@@ -397,14 +406,6 @@ class RTMChat extends RTMRoom {
     }
 
     //===========================[ History Chat (Chat & Cmd & Audio) ]=========================//
-    private List<Byte> chatMTypes = new ArrayList<Byte>() {
-        {
-            add(MessageMType_Chat);
-            add(MessageMType_Audio);
-            add(MessageMType_Cmd);
-        }
-    };
-
     public boolean getGroupChat(HistoryMessageCallback callback, long groupId, boolean desc, int count) {
         return getGroupChat(callback, groupId, desc, count, 0, 0, 0, 0);
     }

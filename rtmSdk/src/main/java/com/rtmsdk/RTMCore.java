@@ -25,15 +25,6 @@ class RTMCore {
         Connected
     }
 
-    static class HostAddress {
-        public String ipv6;
-        public int port;
-
-        public String endpoint() {
-            return ipv6 + ":" + port;
-        }
-    }
-
     //-------------[ Fields ]--------------------------//
     private Object interLocker;
     private long pid;
@@ -68,7 +59,7 @@ class RTMCore {
 
         dispatch = TCPClient.create(endpoint, true);
         dispatch.connectTimeout = RTMConfig.globalConnectTimeoutSeconds;
-        dispatch.setQuestTimeout(RTMConfig.globalFileQuestTimeoutSeconds);
+        dispatch.setQuestTimeout(RTMConfig.globalQuestTimeoutSeconds);
     }
 
     public void setErrorRecoder(com.fpnn.sdk.ErrorRecorder value){
@@ -267,41 +258,6 @@ class RTMCore {
     }
 
     //-------------[ Auth(Login) utilies functions ]--------------------------//
-    private String ConvertIPv4ToIPv6(String ipv4) {
-        String[] parts = ipv4.split("\\.");
-        if (parts.length != 4)
-            return "";
-
-        for (String part : parts) {
-            int partInt = Integer.parseInt(part);
-            if (partInt > 255 || partInt < 0)
-                return "";
-        }
-
-        String part7 = Integer.toHexString(Integer.parseInt(parts[0]) * 256 + Integer.parseInt(parts[1]));
-        String part8 = Integer.toHexString(Integer.parseInt(parts[2]) * 256 + Integer.parseInt(parts[3]));
-        return "64:ff9b::" + part7 + ":" + part8;
-    }
-
-    protected boolean ConvertIPv4EndpointToIPv6IPPort(String ipv4endpoint, HostAddress ipv6address) {
-        int idx = ipv4endpoint.lastIndexOf(":");
-        if (idx == -1) {
-            ipv6address.ipv6 = "";
-            ipv6address.port = 0;
-
-            return false;
-        }
-        String ipv4 = ipv4endpoint.substring(0, idx);
-        String strPort = ipv4endpoint.substring(idx + 1);
-        ipv6address.port = Integer.parseInt(strPort, 10);
-        ipv6address.ipv6 = ConvertIPv4ToIPv6(ipv4);
-
-        if (ipv6address.ipv6.length() == 0)
-            return false;
-
-        return true;
-    }
-
     private void ConfigRtmGateClient(TCPClient client) {
         client.connectTimeout = RTMConfig.globalConnectTimeoutSeconds;
         client.setQuestTimeout(RTMConfig.globalQuestTimeoutSeconds);
@@ -362,7 +318,7 @@ class RTMCore {
                 closeStatus();
                 return RTMErrorCode.RTM_EC_AUTH_RETRY_FAILED.value();
             }
-            String endpoint = (String) answer.get("gate", "");
+            String endpoint = answer.getString("gate");
             if (endpoint.equals("")) {
                 closeStatus();
                 return RTMErrorCode.RTM_EC_UNAUTHORIZED.value();
@@ -403,7 +359,7 @@ class RTMCore {
                         closeStatus();
                         callback.call(RTMErrorCode.RTM_EC_AUTH_RETRY_FAILED.value());
                     } else {
-                        String endpoint = (String) answer.get("gate", "");
+                        String endpoint = answer.getString("gate");
                         if (endpoint.equals("")) {
                             closeStatus();
                             callback.call(RTMErrorCode.RTM_EC_AUTH_FAILED.value());
@@ -441,12 +397,13 @@ class RTMCore {
             @Override
             public void onAnswer(Answer answer, int errorCode) {
                 if (errorCode != ErrorCode.FPNN_EC_OK.value())
-                    callback.call(errorCode);
+                    callback.call(RTMErrorCode.RTM_EC_DISPATCH_FAILED.value());
                 else {
-                    String endpoint = (String) answer.get("endpoint");
+                    String endpoint = answer.getString("endpoint");
                     if (endpoint.equals("")) {
-                        callback.call(ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value());
+                        callback.call(RTMErrorCode.RTM_EC_RTMGATE_FAILED.value());
                     } else {
+                        dispatch.close();
                         rtmGate = TCPClient.create(endpoint);
                         ConfigRtmGateClient(rtmGate);
                         checkRoutineInit();
@@ -490,7 +447,7 @@ class RTMCore {
                 return RTMErrorCode.RTM_EC_DISPATCH_FAILED.value();
             }
 
-            String endpoint = (String) answer.get("endpoint");
+            String endpoint = answer.getString("endpoint");
             if (endpoint.equals("")) {
                 Quest qst = new Quest("whichall");
                 qst.param("what", "rtmGated");
@@ -506,12 +463,13 @@ class RTMCore {
                 rtmGateEndpoints = (ArrayList<String>) answer.get("endpoints");
                 if (rtmGateEndpoints.size() == 0) {
                     closeStatus();
-                    return ErrorCode.FPNN_EC_CORE_UNKNOWN_ERROR.value();
+                    return RTMErrorCode.RTM_EC_RTMGATE_FAILED.value();
                 }
                 rtmGate = TCPClient.create(rtmGateEndpoints.get(0));
             } else
                 rtmGate = TCPClient.create(endpoint);
 
+            dispatch.close();
             ConfigRtmGateClient(rtmGate);
             checkRoutineInit();
             return auth(token, attr);

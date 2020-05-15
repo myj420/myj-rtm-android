@@ -1,5 +1,7 @@
 package com.rtmsdk;
 
+import android.util.Log;
+
 import com.fpnn.sdk.ConnectionConnectedCallback;
 import com.fpnn.sdk.ErrorCode;
 import com.fpnn.sdk.ErrorRecorder;
@@ -218,19 +220,13 @@ class RTMFile extends RTMSystem {
             return ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value();
     }
 
-    private int sendFileWithoutClient(final SendFileInfo info, final boolean originalEndpoint){
+    private int sendFileWithoutClient(final SendFileInfo info){
         String fileGateEndpoint;
-        if (originalEndpoint)
-            fileGateEndpoint = info.endpoint;
-        else {
-            HostAddress ipv6Address = new HostAddress();
-            if (ConvertIPv4EndpointToIPv6IPPort(info.endpoint, ipv6Address))
-                fileGateEndpoint = ipv6Address.endpoint();
-            else
-                return ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value();
-        }
+        fileGateEndpoint = info.endpoint;
 
         final TCPClient client = TCPClient.create(fileGateEndpoint, true);
+        client.setQuestTimeout(RTMConfig.globalQuestTimeoutSeconds);
+        client.connectTimeout = RTMConfig.globalConnectTimeoutSeconds;
         if (errorRecorder != null)
             client.SetErrorRecorder(errorRecorder);
 
@@ -241,10 +237,9 @@ class RTMFile extends RTMSystem {
                 if (connected) {
                     activeFileGateClient(info.endpoint, client);
                     errorCode = sendFileWithClient(info, client);
-                } else if (originalEndpoint)
-                    errorCode = sendFileWithoutClient(info, false);
+                }
                 else
-                    errorCode = ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value();
+                    errorCode = RTMErrorCode.RTM_EC_FILEGATE_FAILED.value();
 
                 if (errorCode != ErrorCode.FPNN_EC_OK.value())
                     info.callback.call(0, errorCode);
@@ -270,7 +265,7 @@ class RTMFile extends RTMSystem {
             if (fileClient != null)
                 err = sendFileWithClient(info, fileClient);
             else
-                err = sendFileWithoutClient(info, true);
+                err = sendFileWithoutClient(info);
 
             if (err == ErrorCode.FPNN_EC_OK.value())
                 return;
@@ -344,25 +339,14 @@ class RTMFile extends RTMSystem {
             TCPClient fileClient = fecthFileGateClient(realEndpoint);
             if (fileClient == null) {
                 fileClient = TCPClient.create(realEndpoint);
+                fileClient.setQuestTimeout(RTMConfig.globalQuestTimeoutSeconds);
+                fileClient.connectTimeout = RTMConfig.globalConnectTimeoutSeconds;
+
                 if (fileClient.connect(true)) {
                     activeFileGateClient(realEndpoint, fileClient);
                 } else {
                     //----------[ 3.1 check timeout ]---------------//
-                    updateTimeout(mytime);
-                    if (mytime.timeout <= 0)
-                        return ErrorCode.FPNN_EC_CORE_TIMEOUT.value();
-
-                    HostAddress ipv6add = new HostAddress();
-                    if (ConvertIPv4EndpointToIPv6IPPort(realEndpoint, ipv6add)) {
-                        fileClient = TCPClient.create(ipv6add.endpoint());
-                        if (fileClient.connect(true)) {
-                            activeFileGateClient(realEndpoint, fileClient);
-                        } else {
-                            return ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value();
-                        }
-                    } else {
-                        return ErrorCode.FPNN_EC_CORE_INVALID_CONNECTION.value();
-                    }
+                    return RTMErrorCode.RTM_EC_FILEGATE_FAILED.value();
                 }
             }
 
