@@ -4,7 +4,6 @@ import com.fpnn.sdk.ErrorCode;
 import com.rtmsdk.RTMClient;
 import com.rtmsdk.RTMErrorCode;
 import com.rtmsdk.RTMStruct.*;
-import com.rtmsdk.RTMUtils;
 import com.rtmsdk.UserInterface.*;
 import org.json.JSONObject;
 
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TestClass {
-    public static long peerUid = 9528;
+    public static long peerUid = 101;
     public static long roomId = 7788521;
     public static long groupId = 7788621;
     public static Map<Long, RTMClient> clients = new HashMap<Long, RTMClient>();
@@ -144,7 +143,7 @@ public class TestClass {
         this.token = token;
         this.dispatchEndpoint = dispatchEndpoint;
 
-        mylog.log("start login:" + RTMUtils.getCurrentSeconds());
+//        mylog.log("start login:" + RTMUtils.getCurrentSeconds());
         client = loginRTM();
         if (client == null) {
             mylog.log("init TestClass error");
@@ -165,7 +164,7 @@ public class TestClass {
                 put("audio", new AudioCase());
             }
         };
-        mylog.log("end login:" + RTMUtils.getCurrentSeconds());
+//        mylog.log("end login:" + RTMUtils.getCurrentSeconds());
     }
 
 
@@ -314,7 +313,7 @@ class ChatCase implements CaseInterface {
     void setTranslateLang(final String lang) {
         final String method = "setTranslatedLanguage";
 
-        boolean status = client.setTranslatedLanguage(new ErroeCodeCallback() {
+        boolean status = client.setTranslatedLanguage(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, lang, 0, false);
@@ -541,7 +540,7 @@ class FriendCase implements CaseInterface {
             add(45678L);
         }};
 
-        boolean status = client.addFriends(new ErroeCodeCallback() {
+        boolean status = client.addFriends(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, uids1.toString(), 0, false);
@@ -564,7 +563,7 @@ class FriendCase implements CaseInterface {
             add(234567L);
         }};
 
-        boolean status = client.deleteFriends(new ErroeCodeCallback() {
+        boolean status = client.deleteFriends(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, deluids1.toString(), 0, false);
@@ -700,7 +699,7 @@ class GroupCase implements CaseInterface {
             add(9988901L);
         }};
 
-        boolean status = client.addGroupMembers(new ErroeCodeCallback() {
+        boolean status = client.addGroupMembers(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, uids.toString(), 0, false);
@@ -724,7 +723,7 @@ class GroupCase implements CaseInterface {
             add(9988234L);
         }};
 
-        boolean status = client.deleteGroupMembers(new ErroeCodeCallback() {
+        boolean status = client.deleteGroupMembers(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, deluids1.toString(), 0, false);
@@ -776,7 +775,7 @@ class GroupCase implements CaseInterface {
         final String method = "setGroupInfo";
         final String beizhu = "publicInfos:" + publicInfos + " privateInfos:" + privateInfos;
 
-        boolean status = client.setGroupInfo(new ErroeCodeCallback() {
+        boolean status = client.setGroupInfo(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, beizhu, 0, false);
@@ -883,7 +882,7 @@ class RoomCase implements CaseInterface {
 
     void leaveRoom() {
         final String method = "leaveRoom";
-        boolean status = client.leaveRoom(new ErroeCodeCallback() {
+        boolean status = client.leaveRoom(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, "", 0, false);
@@ -917,7 +916,7 @@ class RoomCase implements CaseInterface {
         final String method = "setRoomInfo";
         final String beizhu = "publicInfos:" + publicInfos + " privateInfos:" + privateInfos;
 
-        boolean status = client.setRoomInfo(new ErroeCodeCallback() {
+        boolean status = client.setRoomInfo(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, beizhu, 0, false);
@@ -1033,7 +1032,7 @@ class SystemCase implements CaseInterface {
             put("key2", "value2");
         }};
 
-        boolean status = client.addAttributes(new ErroeCodeCallback() {
+        boolean status = client.addAttributes(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, arrs.toString(), 0, false);
@@ -1090,7 +1089,7 @@ class UserCase implements CaseInterface {
         }
         getOnlineUsers();
 
- /*       setUserInfos("This is public info", "This is private info");
+        setUserInfos("This is public info", "This is private info");
         getUserInfos();
 
         mylog.log("======== =========");
@@ -1119,7 +1118,7 @@ class UserCase implements CaseInterface {
             return;
         }
 
-        getUserInfos();*/
+        getUserInfos();
     }
 
     void getOnlineUsers() {
@@ -1150,7 +1149,7 @@ class UserCase implements CaseInterface {
         final String method = "setUserInfos";
         final String beizhu = "publicInfos:" + publicInfos + " privateInfos:" + privateInfos;
 
-        boolean status = client.setUserInfo(new ErroeCodeCallback() {
+        boolean status = client.setUserInfo(new ErrorCodeCallback() {
             @Override
             public void call(int errorCode) {
                 TestClass.outPutMsg(errorCode, method, beizhu, 0, false);
@@ -1259,16 +1258,16 @@ class MessageCase implements CaseInterface {
         final String beizhu = "to user " + TestClass.peerUid;
         final String method = "sendMessage";
 
-//        boolean status = client.sendMessage(new LongFunctionCallback() {
-//            @Override
-//            public void call(long mtime, int errorCode) {
-//                TestClass.outPutMsg(errorCode, method, beizhu, mtime, false);
-//            }
-//        }, TestClass.peerUid, customMType, textMessage);
-//        TestClass.asyncOutput(status, method);
-//
-//        int errorCode = client.sendMessage(ret, TestClass.peerUid, customMType, textMessage);
-//        TestClass.outPutMsg(errorCode, method, beizhu, ret.mtime);
+        boolean status = client.sendMessage(new LongFunctionCallback() {
+            @Override
+            public void call(long mtime, int errorCode) {
+                TestClass.outPutMsg(errorCode, method, beizhu, mtime, false);
+            }
+        }, TestClass.peerUid, customMType, textMessage);
+        TestClass.asyncOutput(status, method);
+
+        int errorCode = client.sendMessage(ret, TestClass.peerUid, customMType, textMessage);
+        TestClass.outPutMsg(errorCode, method, beizhu, ret.mtime);
 
         //for binary//
         final String method1 = "sendMessage in binary";
